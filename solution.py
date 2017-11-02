@@ -46,32 +46,20 @@ def naked_twins(values):
         for peer in peers[box]:
             if len(values[peer]) == 2 and values[box] == values[peer]:
                 print("twin value = [" + box + "]" + values[box] + ", peer value: [" + peer + "]" + values[peer])
-                
+
                 for row_unit in row_units:
-                    if peer in row_unit and box in row_unit:
+                    if (peer in row_unit) and (box in row_unit):
                         for row_box in row_unit:
-                            if values[row_box] != values[box] and len(values[row_box]) > 1:
+                            if (values[row_box] != values[box]) and (len(values[row_box]) > 1):
                                 for value in values[box]:
-                                    assign_value(values, row_box, values[row_box].replace(value,'')) 
-                
+                                    assign_value(values, row_box, values[row_box].replace(value,''))
+
                 for column_unit in column_units:
-                    if peer in column_unit and box in column_unit:
+                    if (peer in column_unit) and (box in column_unit):
                         for col_box in column_unit:
-                            if values[col_box] != values[box] and len(values[col_box]) > 1:
+                            if (values[col_box] != values[box]) and (len(values[col_box]) > 1):
                                 for value in values[box]:
-                                    assign_value(values, col_box, values[col_box].replace(value,'')) 
-
-                print("===")
-                display(values)
-                print("===")                      
-                # for peer_box in peers[box]:
-                #     if values[peer_box] != values[box] and len(values[peer_box]) > 1:
-                #         for value in values[box]:
-                #             assign_value(values, peer_box, values[peer_box].replace(value,''))  
-                #         print("===")
-                #         display(values)
-                #         print("===")              
-
+                                    assign_value(values, col_box, values[col_box].replace(value,''))
     return values
 
 
@@ -86,13 +74,13 @@ def grid_values(grid):
             Values: The value in each box, e.g., '8'. If the box has no value, then the value will be '123456789'.
     """
     grid_dict = {}
-    
+
     for box_i in range(0, len(boxes)):
         if grid[box_i] == '.':
             grid_dict[boxes[box_i]] = '123456789'
         else:
             grid_dict[boxes[box_i]] = grid[box_i]
-            
+
     return grid_dict
 
 def display(values):
@@ -146,7 +134,7 @@ def reduce_puzzle(values):
         values = eliminate(values)
         print("=> after eliminate")
         display(values)
-        
+
         values = naked_twins(values)
         print("=> after naked_twins")
         display(values)
@@ -171,11 +159,11 @@ def search(values):
     values = reduce_puzzle(values)
     if values is False:
         return False ## Failed earlier
-    if all(len(values[s]) == 1 for s in boxes): 
+    if all(len(values[s]) == 1 for s in boxes):
         return values ## Solved!
     # Choose one of the unfilled squares with the fewest possibilities
     n,s = min((len(values[s]), s) for s in boxes if len(values[s]) > 1)
-    # Now use recurrence to solve each one of the resulting sudokus, and 
+    # Now use recurrence to solve each one of the resulting sudokus, and
     for value in values[s]:
         new_sudoku = values.copy()
         new_sudoku[s] = value
