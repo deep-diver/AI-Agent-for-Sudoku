@@ -3,6 +3,8 @@ assignments = []
 rows = 'ABCDEFGHI'
 cols = '123456789'
 
+ASCII_A = 65
+
 def cross(A, B):
     return [s+t for s in A for t in B]
 
@@ -12,8 +14,11 @@ row_units = [cross(r, cols) for r in rows]
 column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
 unitlist = row_units + column_units + square_units
+
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
+
+diag_units = sum([[chr(ASCII_A + i) + str(i+1), chr(ASCII_A + i) + str(9-i)] for i in range(0, 9)], [])
 
 def assign_value(values, box, value):
     """
@@ -132,17 +137,13 @@ def reduce_puzzle(values):
 
         # the Eliminate Strategy
         values = eliminate(values)
-        print("=> after eliminate")
-        display(values)
 
+        # the Naked Twins Strategy
         values = naked_twins(values)
-        print("=> after naked_twins")
-        display(values)
 
         # the Only Choice Strategy
         values = only_choice(values)
-        print("=> after only_choice")
-        display(values)
+
 
         # Check how many boxes have a determined value, to compare
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
