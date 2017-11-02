@@ -42,6 +42,39 @@ def naked_twins(values):
     # Find all instances of naked twins
     # Eliminate the naked twins as possibilities for their peers
 
+    for box in values:
+        for peer in peers[box]:
+            if len(values[peer]) == 2 and values[box] == values[peer]:
+                print("twin value = [" + box + "]" + values[box] + ", peer value: [" + peer + "]" + values[peer])
+                
+                for row_unit in row_units:
+                    if peer in row_unit and box in row_unit:
+                        for row_box in row_unit:
+                            if values[row_box] != values[box] and len(values[row_box]) > 1:
+                                for value in values[box]:
+                                    assign_value(values, row_box, values[row_box].replace(value,'')) 
+                
+                for column_unit in column_units:
+                    if peer in column_unit and box in column_unit:
+                        for col_box in column_unit:
+                            if values[col_box] != values[box] and len(values[col_box]) > 1:
+                                for value in values[box]:
+                                    assign_value(values, col_box, values[col_box].replace(value,'')) 
+
+                print("===")
+                display(values)
+                print("===")                      
+                # for peer_box in peers[box]:
+                #     if values[peer_box] != values[box] and len(values[peer_box]) > 1:
+                #         for value in values[box]:
+                #             assign_value(values, peer_box, values[peer_box].replace(value,''))  
+                #         print("===")
+                #         display(values)
+                #         print("===")              
+
+    return values
+
+
 def grid_values(grid):
     """
     Convert grid into a dict of {square: char} with '123456789' for empties.
@@ -65,8 +98,8 @@ def grid_values(grid):
 def display(values):
     """
     Display the values as a 2-D grid.
-    Args:
-        values(dict): The sudoku in dictionary form
+    Input: The sudoku in dictionary form
+    Output: None
     """
     width = 1+max(len(values[s]) for s in boxes)
     line = '+'.join(['-'*(width*3)]*3)
@@ -91,7 +124,7 @@ def eliminate(values):
     for box in solved_values:
         digit = values[box]
         for peer in peers[box]:
-            assign_value(values, peer,values[peer].replace(digit,''))
+            assign_value(values, peer, values[peer].replace(digit,''))
     return values
 
 def only_choice(values):
@@ -111,9 +144,17 @@ def reduce_puzzle(values):
 
         # the Eliminate Strategy
         values = eliminate(values)
+        print("=> after eliminate")
+        display(values)
         
+        values = naked_twins(values)
+        print("=> after naked_twins")
+        display(values)
+
         # the Only Choice Strategy
         values = only_choice(values)
+        print("=> after only_choice")
+        display(values)
 
         # Check how many boxes have a determined value, to compare
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
@@ -157,7 +198,8 @@ def solve(grid):
     return values
 
 if __name__ == '__main__':
-    diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+    # diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+    diag_sudoku_grid = '1.4.9..68956.18.34..84.695151.....868..6...1264..8..97781923645495.6.823.6.854179'
     display(solve(diag_sudoku_grid))
 
     try:
