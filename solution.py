@@ -1,8 +1,8 @@
 assignments = []
 
+# constant value
 rows = 'ABCDEFGHI'
 cols = '123456789'
-
 ASCII_A = 65
 
 def cross(A, B):
@@ -18,7 +18,7 @@ unitlist = row_units + column_units + square_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
-diag_units = sum([[chr(ASCII_A + i) + str(i+1), chr(ASCII_A + i) + str(9-i)] for i in range(0, 9)], [])
+diag_units = [[chr(ASCII_A+i) + str(i+1) for i in range(0, 9)], [chr(ASCII_A+i) + str(9-i) for i in range(0, 9)]]
 
 def assign_value(values, box, value):
     """
@@ -50,18 +50,16 @@ def naked_twins(values):
     for box in values:
         for peer in peers[box]:
             if len(values[peer]) == 2 and values[box] == values[peer]:
-                print("twin value = [" + box + "]" + values[box] + ", peer value: [" + peer + "]" + values[peer])
-
-                for row_unit in row_units:
-                    if (peer in row_unit) and (box in row_unit):
-                        for row_box in row_unit:
+                for unit in row_units:
+                    if (peer in unit) and (box in unit):
+                        for row_box in unit:
                             if (values[row_box] != values[box]) and (len(values[row_box]) > 1):
                                 for value in values[box]:
                                     assign_value(values, row_box, values[row_box].replace(value,''))
 
-                for column_unit in column_units:
-                    if (peer in column_unit) and (box in column_unit):
-                        for col_box in column_unit:
+                for unit in column_units:
+                    if (peer in unit) and (box in unit):
+                        for col_box in unit:
                             if (values[col_box] != values[box]) and (len(values[col_box]) > 1):
                                 for value in values[box]:
                                     assign_value(values, col_box, values[col_box].replace(value,''))
@@ -118,6 +116,15 @@ def eliminate(values):
         digit = values[box]
         for peer in peers[box]:
             assign_value(values, peer, values[peer].replace(digit,''))
+
+    for units in diag_units:
+        solved_values = [box for box in units if len(values[box]) == 1]
+        for box in solved_values:
+            digit = values[box]
+            for unit in units:
+                if unit != box and len(values[unit]) != 1:
+                    assign_value(values, unit, values[unit].replace(digit,''))
+
     return values
 
 def only_choice(values):
@@ -126,6 +133,7 @@ def only_choice(values):
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
                 assign_value(values, dplaces[0], digit)
+
     return values
 
 
@@ -187,8 +195,8 @@ def solve(grid):
     return values
 
 if __name__ == '__main__':
-    # diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    diag_sudoku_grid = '1.4.9..68956.18.34..84.695151.....868..6...1264..8..97781923645495.6.823.6.854179'
+    diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+    # diag_sudoku_grid = '1.4.9..68956.18.34..84.695151.....868..6...1264..8..97781923645495.6.823.6.854179'
     display(solve(diag_sudoku_grid))
 
     try:
