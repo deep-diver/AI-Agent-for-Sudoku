@@ -1,44 +1,29 @@
 # Artificial Intelligence Nanodegree
 ## Introductory Project: Diagonal Sudoku Solver
 
-# Question 1 (Naked Twins)
-Q: How do we use constraint propagation to solve the naked twins problem?  
-A: *Student should provide answer here*
+# Contents
+* About the Project
+* Questions from Udacity
+* Install Guide
+* Dependencies
+* Resources
 
-# Question 2 (Diagonal Sudoku)
-Q: How do we use constraint propagation to solve the diagonal sudoku problem?  
-A: *Student should provide answer here*
+# About the Project
+This project is a part of AIND(Artificial Intelligence Nanodegree)'s assignment. This project is about building an agent to solve any 'Diagonal Sudoku' problem using 3 techniques, "eliminate", "only one choice", and "naked twins". The agent tries to solve problems by applying the techniques while performing Depth First Search.
 
-### Install
+# Questions from Udacity
+## Question 1 (Naked Twins) - How do we use constraint propagation to solve the naked twins problem?
+A: First of all, naked twins problem is applicable when there are 2-digit boxes available. Second, when I come across a 2-digit box while searching all boxes, then I look up its row/column peers. Third, I go through all row/column peers and search for a box having the same 2-digit value. Fourth, if the box is found, I go through row/column peers and remove the 2-digit value from row/column peers. If a peer contain only one digit of the 2-digit value, that one digit will also be deleted.
 
-This project requires **Python 3**.
+## Question 2 (Diagonal Sudoku) - How do we use constraint propagation to solve the diagonal sudoku problem?  
+A: There are only 2 diagonal lines in Sudoku, so I made a list of box belonging to the lines. Just like for normal Sudoku, the same techniques can be applied to Diagonal Sudoku but with slightly modified version. For eliminate technique, I eliminated all duplicate values of possible digits from boxes belonging to the same diagonal line. Also, I checked if there are boxes with the same 2-digit value so that I could perform naked twins technique for each diagonal lines. Only one choice technique is also modified to support diagonal sudoku to find a box which has the only unique value comparing to other boxes on each diagonal lines.
 
-We recommend students install [Anaconda](https://www.continuum.io/downloads), a pre-packaged Python distribution that contains all of the necessary libraries and software for this project. 
-Please try using the environment we provided in the Anaconda lesson of the Nanodegree.
+# Dependencies
+* This project requires **Python 3.x**.
+* This project optionally requires **Pygame**[here](http://www.pygame.org/download.shtml) for visualization purpose.
 
-##### Optional: Pygame
-
-Optionally, you can also install pygame if you want to see your visualization. If you've followed our instructions for setting up our conda environment, you should be all set.
-
-If not, please see how to download pygame [here](http://www.pygame.org/download.shtml).
-
-### Code
-
-* `solution.py` - Fill in the required functions in this file to complete the project.
+# Resources
+* `solution.py` - Complete Diagonal Sudoku problem solving logic.
 * `test_solution.py` - You can test your solution by running `python -m unittest`.
 * `PySudoku.py` - This is code for visualizing your solution.
 * `visualize.py` - This is code for visualizing your solution.
-
-### Visualizing
-
-To visualize your solution, please only assign values to the values_dict using the `assign_value` function provided in solution.py
-
-### Submission
-Before submitting your solution to a reviewer, you are required to submit your project to Udacity's Project Assistant, which will provide some initial feedback.  
-
-The setup is simple.  If you have not installed the client tool already, then you may do so with the command `pip install udacity-pa`.  
-
-To submit your code to the project assistant, run `udacity submit` from within the top-level directory of this project.  You will be prompted for a username and password.  If you login using google or facebook, visit [this link](https://project-assistant.udacity.com/auth_tokens/jwt_login) for alternate login instructions.
-
-This process will create a zipfile in your top-level directory named sudoku-<id>.zip.  This is the file that you should submit to the Udacity reviews system.
-

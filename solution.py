@@ -8,6 +8,8 @@ ASCII_A = 65
 def cross(A, B):
     return [s+t for s in A for t in B]
 
+
+# all box, unit, peer reference variables.
 boxes = cross(rows, cols)
 
 row_units = [cross(r, cols) for r in rows]
@@ -18,6 +20,8 @@ unitlist = row_units + column_units + square_units
 units = dict((s, [u for u in unitlist if s in u]) for s in boxes)
 peers = dict((s, set(sum(units[s],[]))-set([s])) for s in boxes)
 
+# this is for stroing all boxes belonging to the diagonal lines.
+# it creates 2 lists, one for each diagonal line.
 diag_units = [[chr(ASCII_A+i) + str(i+1) for i in range(0, 9)], [chr(ASCII_A+i) + str(9-i) for i in range(0, 9)]]
 
 def assign_value(values, box, value):
@@ -47,22 +51,58 @@ def naked_twins(values):
     # Find all instances of naked twins
     # Eliminate the naked twins as possibilities for their peers
 
+    # for column and row units
+    # going through all boxes
     for box in values:
+        # going through all peers of the box
         for peer in peers[box]:
+            # if one of the peer has the same value to the box
             if len(values[peer]) == 2 and values[box] == values[peer]:
+                # if the box and peer belongs the same row_units list
                 for unit in row_units:
                     if (peer in unit) and (box in unit):
+                        # perform naked twins technique for row units
                         for row_box in unit:
                             if (values[row_box] != values[box]) and (len(values[row_box]) > 1):
                                 for value in values[box]:
                                     assign_value(values, row_box, values[row_box].replace(value,''))
-
+                # if the box and peer belongs the same column_units list
                 for unit in column_units:
                     if (peer in unit) and (box in unit):
+                        # perform naked twins technique for column units
                         for col_box in unit:
                             if (values[col_box] != values[box]) and (len(values[col_box]) > 1):
                                 for value in values[box]:
                                     assign_value(values, col_box, values[col_box].replace(value,''))
+
+    # for diagonal units
+    # for each diagonal direction
+    for diag_unit in diag_units:
+        found = False
+        box1_val = ''
+        box2_val = ''
+
+        # find two boxes having the same value
+        for box1 in diag_unit:
+            if len(values[box1]) == 2:
+                for box2 in diag_unit:
+                    if (box1 != box2) and (values[box1] == values[box2]):
+                        found = True
+                        box1_val = values[box1]
+                        box2_val = values[box2]
+                        break
+
+        # if two boxes are found
+        if found == True:
+            # perform naked twins technique for diagonal units
+            for box in diag_unit:
+                if (values[box] != box1_val) and (len(values[box]) > 1):
+                    for value in box1_val:
+                        assign_value(values, box, values[box].replace(value,''))
+
+
+
+
     return values
 
 
@@ -117,6 +157,7 @@ def eliminate(values):
         for peer in peers[box]:
             assign_value(values, peer, values[peer].replace(digit,''))
 
+    # eliminate for diag units
     for units in diag_units:
         solved_values = [box for box in units if len(values[box]) == 1]
         for box in solved_values:
@@ -129,6 +170,13 @@ def eliminate(values):
 
 def only_choice(values):
     for unit in unitlist:
+        for digit in '123456789':
+            dplaces = [box for box in unit if digit in values[box]]
+            if len(dplaces) == 1:
+                assign_value(values, dplaces[0], digit)
+
+    # only choice for diag units
+    for unit in diag_units:
         for digit in '123456789':
             dplaces = [box for box in unit if digit in values[box]]
             if len(dplaces) == 1:
@@ -151,7 +199,6 @@ def reduce_puzzle(values):
 
         # the Only Choice Strategy
         values = only_choice(values)
-
 
         # Check how many boxes have a determined value, to compare
         solved_values_after = len([box for box in values.keys() if len(values[box]) == 1])
@@ -196,7 +243,6 @@ def solve(grid):
 
 if __name__ == '__main__':
     diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
-    # diag_sudoku_grid = '1.4.9..68956.18.34..84.695151.....868..6...1264..8..97781923645495.6.823.6.854179'
     display(solve(diag_sudoku_grid))
 
     try:
