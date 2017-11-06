@@ -39,6 +39,78 @@ def assign_value(values, box, value):
         assignments.append(values.copy())
     return values
 
+def check_two_vals_equal(val1, val2):
+    """
+    comparing two values in two boxes
+    each box could have the same values in different order
+    """
+    count = 0
+
+    if len(val1) is not len(val2):
+        return False
+
+    for val in val1:
+        if val in val2:
+            count += 1
+
+    if count == len(val1):
+        return True
+    else:
+        return False
+
+def naked_twins_square(values, target_box, target_peer):
+    """removing duplicate values in a square unit
+    Args:
+        values(dict): a dictionary of the form {'box_name': '123456789', ...}
+        target_box, target_peer: boxes having the same values
+    """
+    for square_unit in square_units:
+        if target_box in square_unit and target_peer in square_unit:
+            for box in square_unit:
+                if check_two_vals_equal(values[box], values[target_box]) == False and (len(values[box]) > 1):
+                    for value in values[target_box]:
+                        assign_value(values, box, values[box].replace(value,''))
+            return
+
+def naked_twins_row_col(values, target_box, target_peer, units):
+    """removing duplicate values in a square unit
+    Args:
+        values(dict): a dictionary of the form {'box_name': '123456789', ...}
+        target_box, target_peer: boxes having the same values
+        units: either column_unit or row_unit
+    """
+    for unit in units:
+        if (target_peer in unit) and (target_box in unit):
+            # perform naked twins technique for row units
+            for box in unit:
+                if check_two_vals_equal(values[box], values[target_box]) == False and (len(values[box]) > 1):
+                    for value in values[target_box]:
+                        assign_value(values, box, values[box].replace(value,''))
+
+def naked_twins_diag(values):
+    for diag_unit in diag_units:
+        found = False
+        box1_val = ''
+        box2_val = ''
+
+        # find two boxes having the same value
+        for box1 in diag_unit:
+            if len(values[box1]) == 2:
+                for box2 in diag_unit:
+                    if (box1 != box2) and check_two_vals_equal(values[box1], values[box2]):
+                        found = True
+                        box1_val = values[box1]
+                        box2_val = values[box2]
+                        break
+
+        # if two boxes are found
+        if found == True:
+            # perform naked twins technique for diagonal units
+            for box in diag_unit:
+                if check_two_vals_equal(values[box], box1_val) == False and (len(values[box]) > 1):
+                    for value in box1_val:
+                        assign_value(values, box, values[box].replace(value,''))
+
 def naked_twins(values):
     """Eliminate values using the naked twins strategy.
     Args:
@@ -57,51 +129,19 @@ def naked_twins(values):
         # going through all peers of the box
         for peer in peers[box]:
             # if one of the peer has the same value to the box
-            if len(values[peer]) == 2 and values[box] == values[peer]:
-                # if the box and peer belongs the same row_units list
-                for unit in row_units:
-                    if (peer in unit) and (box in unit):
-                        # perform naked twins technique for row units
-                        for row_box in unit:
-                            if (values[row_box] != values[box]) and (len(values[row_box]) > 1):
-                                for value in values[box]:
-                                    assign_value(values, row_box, values[row_box].replace(value,''))
-                # if the box and peer belongs the same column_units list
-                for unit in column_units:
-                    if (peer in unit) and (box in unit):
-                        # perform naked twins technique for column units
-                        for col_box in unit:
-                            if (values[col_box] != values[box]) and (len(values[col_box]) > 1):
-                                for value in values[box]:
-                                    assign_value(values, col_box, values[col_box].replace(value,''))
+            if len(values[peer]) is 2 and check_two_vals_equal(values[box], values[peer]):
+                # if the box and peer belongs to the same row_units list
+                naked_twins_row_col(values, box, peer, row_units)
+
+                # if the box and peer belongs to the same column_units list
+                naked_twins_row_col(values, box, peer, column_units)
+
+                # if the box and peer belongs to the same square unit
+                naked_twins_square(values, box, peer)
 
     # for diagonal units
     # for each diagonal direction
-    for diag_unit in diag_units:
-        found = False
-        box1_val = ''
-        box2_val = ''
-
-        # find two boxes having the same value
-        for box1 in diag_unit:
-            if len(values[box1]) == 2:
-                for box2 in diag_unit:
-                    if (box1 != box2) and (values[box1] == values[box2]):
-                        found = True
-                        box1_val = values[box1]
-                        box2_val = values[box2]
-                        break
-
-        # if two boxes are found
-        if found == True:
-            # perform naked twins technique for diagonal units
-            for box in diag_unit:
-                if (values[box] != box1_val) and (len(values[box]) > 1):
-                    for value in box1_val:
-                        assign_value(values, box, values[box].replace(value,''))
-
-
-
+    naked_twins_diag(values)
 
     return values
 
@@ -242,7 +282,8 @@ def solve(grid):
     return values
 
 if __name__ == '__main__':
-    diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+    # diag_sudoku_grid = '2.............62....1....7...6..8...3...9...7...6..4...4....8....52.............3'
+    diag_sudoku_grid = '9.1....8.8.5.7..4.2.4....6...7......5..............83.3..6......9................'
     display(solve(diag_sudoku_grid))
 
     try:
